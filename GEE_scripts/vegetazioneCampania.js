@@ -1,7 +1,7 @@
 /*
-Su Google Earth Engine bisogna importare:
+Da Google Earth Engine bisogna importare:
 - lo shape file della Campania;
-- la seguente ImageCollection ee.ImageCollection("LANDSAT/LC08/C02/T1_TOA")
+- la seguente ImageCollection: ee.ImageCollection("LANDSAT/LC08/C02/T1_TOA")
 */
 
 var dataInizio = "2022-01-01";  //YYYY-MM-DD
@@ -31,6 +31,5 @@ var ndviParams = {
 }
 
 Map.centerObject(shapefileCampania, 8); //centro la mappa sul layer della Campania
+Map.addLayer(shapefileCampania);
 Map.addLayer(ndvi, ndviParams, "VegetazioneCampania");
-
-//devo fare una gif del timelaps
