@@ -47,13 +47,6 @@ var rgbVis = comp.map(function(img) {
   return img.visualize(visParams).clip(campaniaGeometry);
 });
 
-var gifParams = {
-  'region': campaniaGeometry,
-  'dimensions': 600,
-  'crs': 'EPSG:3857',
-  'framesPerSecond': 2
-};
-
 //Esporto la gif sul drive associato all'account di Google Earth Engine
 Export.video.toDrive({
   collection: rgbVis,
