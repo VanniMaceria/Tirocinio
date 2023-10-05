@@ -13,7 +13,7 @@ var campaniaGeometry = campania.geometry(); //ottengo i vertici in coordinate de
 
 print(campaniaGeometry);  //stampa le coordinate del poligono
 
-var col = ee.ImageCollection('MODIS/061/MOD13A2').select('NDVI'); //seleziono l'ndice di Differenza Normalizzata di Vegetazione
+var col = ee.ImageCollection('MODIS/061/MOD13A2').select('NDVI'); //seleziono l'indice di Differenza Normalizzata di Vegetazione
 
 col = col.map(function(img) {
   var doy = ee.Date(img.get('system:time_start')).getRelative('day', 'year'); //ottengo la data di acquisizione dell'immagine
@@ -23,7 +23,7 @@ col = col.map(function(img) {
 var distinctDOY = col.filterDate(dataInizio, dataFine); //filtro la collezione di immagini e prendo solo quelle che rientrano tra le due date
 
 var filter = ee.Filter.equals({leftField: 'doy', rightField: 'doy'});
-var join = ee.Join.saveAll('doy_matches');
+var join = ee.Join.saveAll('doy_matches');  //salvo le immagini che hanno lo stesso valore di 'doy'
 var joinCol = ee.ImageCollection(join.apply(distinctDOY, col, filter));
 var comp = joinCol.map(function(img) {
   var doyCol = ee.ImageCollection.fromImages(
@@ -56,3 +56,4 @@ Export.video.toDrive({
   region: campaniaGeometry,
   folder: "GEE_data", //se non esiste, la cartella viene creata automaticamente
 });
+
