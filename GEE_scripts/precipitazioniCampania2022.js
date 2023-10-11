@@ -6,7 +6,7 @@ var campania = ee.FeatureCollection('FAO/GAUL/2015/level1') //featureCollection 
 
 var campaniaGeometry = campania.geometry(); //ottengo i vertici in coordinate della regione
 
-var precipitazioniCampania2022 = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD')
+var precipitazioniCampania2022 = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD') //raccolta di dati sulle precipitazioni su un periodo di 5 giorni
   .select('precipitation')  //filtro prendendo solo le immagini con una banda 'precipitation'
   .filterBounds(campaniaGeometry)
   .filterDate(dataInizio, dataFine)
