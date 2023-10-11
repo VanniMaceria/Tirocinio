@@ -40,7 +40,7 @@ Map.centerObject(campaniaGeometry, 8); //centro la mappa sul layer della Campani
 Map.addLayer(shapefileCampania);
 Map.addLayer(ndvi, ndviParams, "VegetazioneCampania");
 
-//Esporto l'immagine
+//esporto l'immagine
 Export.image.toDrive({
   image: ndvi,
   description: "NDVI_medio_Campania 2022",
