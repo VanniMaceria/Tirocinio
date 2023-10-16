@@ -6,8 +6,12 @@ var campania = ee.FeatureCollection('FAO/GAUL/2015/level1') //featureCollection 
 
 var campaniaGeometry = campania.geometry(); //ottengo i vertici in coordinate della regione
 
-var precipitazioniCampania2022 = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD') //raccolta di dati sulle precipitazioni su un periodo di 5 giorni
-  .select('precipitation')  //filtro prendendo solo le immagini con una banda 'precipitation'
+/*
+  - raccolta di dati sulle precipitazioni su un periodo di 5 giorni -> (ogni immagine =  5 giorni)
+  - i dati sono espressi in millimetri (mm), che rappresentano l'altezza dell'acqua piovana accumulata su una superficie.
+*/
+var precipitazioniCampania2022 = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD')
+  .select('precipitation')  //filtro prendendo solo le immagini con banda 'precipitation'
   .filterBounds(campaniaGeometry)
   .filterDate(dataInizio, dataFine)
   .sum()  //sum() restituisce una singola immagine dove ogni pixel conterrà la somma dei valori dei pixel corrispondenti in tutte le immagini
@@ -15,7 +19,7 @@ var precipitazioniCampania2022 = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD') //
 
 var visParams = {
   min: 0,
-  max: 1072.43,
+  max: 1072.43, //il valore massimo è all'incirca un metro d'acqua
   palette: ['red', 'white', 'blue']
   
 }
