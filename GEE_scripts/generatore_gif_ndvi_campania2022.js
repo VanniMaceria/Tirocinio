@@ -43,13 +43,13 @@ var visParams = {
   ],
 };
 
-var rgbVis = comp.map(function(img) {
+var ndvi = comp.map(function(img) {
   return img.visualize(visParams).clip(campaniaGeometry);
 });
 
 //esporto la gif sul drive associato all'account di Google Earth Engine
 Export.video.toDrive({
-  collection: rgbVis,
+  collection: ndvi,
   description: "NDVI_Campania",
   dimensions: 720,
   framesPerSecond: 2,
