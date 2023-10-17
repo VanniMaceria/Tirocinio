@@ -40,7 +40,7 @@ Map.addLayer(precipitazioni);
 
 //esporto la gif sul drive associato all'account di Google Earth Engine
 Export.video.toDrive({
-  collection: rgbVis,
+  collection: precipitazioni,
   description: "precipitazioni_Campania",
   dimensions: 720,
   framesPerSecond: 2,
