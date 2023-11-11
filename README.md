@@ -19,8 +19,7 @@ geolib.js is a Google Earth Engine Javascript library that contains functions fo
      //define your region of interest...
 
      //how to call a function
-     geolib.generateLandsatNDVI(roi, '2022-01-01', '2022-04-01', 10);
-     geolib.generateSentinelNDVI(roi, '2022-01-01', '2022-04-01', 10);
+     geolib.generateSentinelNDVI_mean(roi, '2022-01-01', '2022-04-01', 10);
      ```
 
    That's it!
