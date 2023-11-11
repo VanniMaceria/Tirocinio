@@ -166,10 +166,10 @@ exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCove
   // Calcola il LSWI per ogni immagine nella collezione
   var lswiCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
-    var swir = image.select('B11');
-    var lswi = image.expression('(NIR - SWIR) / (NIR + SWIR)', {
+    var swir1 = image.select('B11');
+    var lswi = image.expression('(NIR - SWIR1) / (NIR + SWIR1)', {
       'NIR': nir,
-      'SWIR': swir
+      'SWIR1': swir1,
     }).rename('LSWI');
     return lswi;
   });
@@ -202,10 +202,10 @@ exports.generateSentinelLSWI_variance = function (roi, startDate, endDate, cloud
   // Calcola il LSWI per ogni immagine nella collezione
   var lswiCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
-    var swir = image.select('B11');
-    var lswi = image.expression('(NIR - SWIR) / (NIR + SWIR)', {
+    var swir1 = image.select('B11');
+    var lswi = image.expression('(NIR - SWIR1) / (NIR + SWIR1)', {
       'NIR': nir,
-      'SWIR': swir
+      'SWIR1': swir1
     }).rename('LSWI');
     return lswi;
   });
@@ -238,10 +238,12 @@ exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCov
   // Calcola il mNDWI per ogni immagine nella collezione
   var mndwiCollection = sentinelImages.map(function (image) {
     var green = image.select('B3');
-    var swir = image.select('B11');
-    var mndwi = image.expression('(GREEN - SWIR) / (GREEN + SWIR)', {
+    var swir1 = image.select('B11');
+    var swir2 = image.select('B12');
+    var mndwi = image.expression('(GREEN - SWIR1) / (GREEN + SWIR2)', {
       'GREEN': green, 
-      'SWIR': swir
+      'SWIR1': swir1,
+      'SWIR2': swir2
     }).rename('MNDWI');
     return mndwi;
   });
@@ -271,13 +273,14 @@ exports.generateSentinelMNDWI_variance = function (roi, startDate, endDate, clou
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il mNDWI per ogni immagine nella collezione
   var mndwiCollection = sentinelImages.map(function (image) {
     var green = image.select('B3');
-    var swir = image.select('B11');
-    var mndwi = image.expression('(GREEN - SWIR) / (GREEN + SWIR)', {
-      'GREEN': green,
-      'SWIR': swir
+    var swir1 = image.select('B11');
+    var swir2 = image.select('B12');
+    var mndwi = image.expression('(GREEN - SWIR1) / (GREEN + SWIR2)', {
+      'GREEN': green, 
+      'SWIR1': swir1,
+      'SWIR2': swir2
     }).rename('MNDWI');
     return mndwi;
   });
@@ -310,9 +313,9 @@ exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCove
   // Calcola il NDBI per ogni immagine nella collezione
   var ndbiCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
-    var swir = image.select('B11');
-    var ndbi = image.expression('(SWIR - NIR) / (SWIR + NIR)', {
-      'SWIR': swir, 
+    var swir1 = image.select('B11');
+    var ndbi = image.expression('(SWIR1 - NIR) / (SWIR1 + NIR)', {
+      'SWIR1': swir1, 
       'NIR': nir
     }).rename('NDBI');
     return ndbi;
@@ -346,9 +349,10 @@ exports.generateSentinelNDBI_variance = function (roi, startDate, endDate, cloud
   // Calcola il NDBI per ogni immagine nella collezione
   var ndbiCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
-    var swir = image.select('B11');
-    var ndbi = image.expression('(SWIR - NIR) / (SWIR + NIR)', {
-      'SWIR': swir, 'NIR': nir
+    var swir1 = image.select('B11');
+    var ndbi = image.expression('(SWIR1 - NIR) / (SWIR1 + NIR)', {
+      'SWIR1': swir1, 
+      'NIR': nir
     }).rename('NDBI');
     return ndbi;
   });
@@ -380,11 +384,11 @@ exports.generateSentinelNDSI_mean = function (roi, startDate, endDate, cloudCove
 
   // Calcola il NDSI per ogni immagine nella collezione
   var ndsiCollection = sentinelImages.map(function (image) {
-    var green = image.select('B3');
-    var swir = image.select('B11');
-    var ndsi = image.expression('(GREEN - SWIR) / (GREEN + SWIR)', {
-      'GREEN': green, 
-      'SWIR': swir
+    var swir1 = image.select('B11');
+    var swir2 = image.select('B12');
+    var ndsi = image.expression('(SWIR1 - SWIR2) / (SWIR1 + SWIR2)', {
+      'SWIR1': swir1, 
+      'SWIR2': swir2
     }).rename('NDSI');
     return ndsi;
   });
@@ -416,14 +420,15 @@ exports.generateSentinelNDSI_variance = function (roi, startDate, endDate, cloud
 
   // Calcola il NDSI per ogni immagine nella collezione
   var ndsiCollection = sentinelImages.map(function (image) {
-    var green = image.select('B3');
-    var swir = image.select('B11');
-    var ndsi = image.expression('(GREEN - SWIR) / (GREEN + SWIR)', {
-      'GREEN': green, 
-      'SWIR': swir
+    var swir1 = image.select('B11');
+    var swir2 = image.select('B12');
+    var ndsi = image.expression('(SWIR1 - SWIR2) / (SWIR1 + SWIR2)', {
+      'SWIR1': swir1, 
+      'SWIR2': swir2
     }).rename('NDSI');
     return ndsi;
   });
+
 
   // Calcola la varianza del NDSI
   var ndsiVariance = ndsiCollection.reduce(ee.Reducer.variance()).rename('NDSI_variance');
