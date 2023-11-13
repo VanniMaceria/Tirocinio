@@ -1,7 +1,7 @@
 /*
   questo file contiene funzioni per la creazione di indici di tipo geospaziale usando dati Sentinel-2:
   - NDVI
-  - EVI
+  - EVI ottengo valori anomali
   - LSWI
   - mNDWI
   - NDBI
@@ -9,6 +9,8 @@
   - TDVI
   - CMR
   - CIgreen
+  - MSAVI (ottengo valori anomali, ben al di fuori di -1, 1, la mappa è molto frammentata)
+  - NBAI (tutti i valori sono variazioni di 0.999, per la media. Il range -1, 1 è rispettato, ma la mappa non ha senso)
 */
 
 //funzione di filtraggio dati Sentinel-2
@@ -21,11 +23,7 @@ function filterFromSentinel2(roi, startDate, endDate, cloudCover){
   return S2;
 }
 
-//funzione che calcola l'NDVI medio utilizzando dati Sentinel-2
-exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateNDVI(sentinelImages){
   // Calcola l'NDVI per ogni immagine nella collezione
   var ndviCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
@@ -34,6 +32,16 @@ exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCove
     return ndvi;
   });
 
+  return ndviCollection;
+}
+
+//funzione che calcola l'NDVI medio utilizzando dati Sentinel-2
+exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var ndviCollection = calculateNDVI(sentinelImages);
+  
   // Calcola la media dell'NDVI
   var ndviMean = ndviCollection.mean().rename('NDVI_mean');
 
@@ -59,14 +67,8 @@ exports.generateSentinelNDVI_variance = function (roi, startDate, endDate, cloud
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola l'NDVI per ogni immagine nella collezione
-  var ndviCollection = sentinelImages.map(function (image) {
-    var nir = image.select('B8');
-    var red = image.select('B4');
-    var ndvi = nir.subtract(red).divide(nir.add(red)).rename('NDVI');
-    return ndvi;
-  });
-
+  var ndviCollection = calculateNDVI(sentinelImages);
+  
   // Calcola la varianza dell'NDVI
   var ndviVariance = ndviCollection.reduce(ee.Reducer.variance()).rename('NDVI_variance');
 
@@ -80,25 +82,31 @@ exports.generateSentinelNDVI_variance = function (roi, startDate, endDate, cloud
   return ndviVarianceClipped; // Ritorna l'immagine della varianza dell'NDVI clipata
 };
 
-// Funzione per calcolare l'EVI medio utilizzando dati Sentinel-2
-exports.generateSentinelEVI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
-  // Calcola l'EVI per ogni immagine nella collezione
+function calculateEVI(sentinelImages){
+ // Calcola l'EVI per ogni immagine nella collezione
   var eviCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
     var red = image.select('B4');
     var blue = image.select('B2');
     var evi = image.expression(
-      '2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))', {
+      '2.5 * (NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1)', {
         'NIR': nir,
         'RED': red,
         'BLUE': blue
       }).rename('EVI');
     return evi;
   });
+  
+  return eviCollection;
+}
 
+// Funzione per calcolare l'EVI medio utilizzando dati Sentinel-2
+exports.generateSentinelEVI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var eviCollection = calculateEVI(sentinelImages);
+  
   // Calcola la media dell'EVI
   var eviMean = eviCollection.mean().rename('EVI_mean');
 
@@ -124,20 +132,8 @@ exports.generateSentinelEVI_variance = function (roi, startDate, endDate, cloudC
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola l'EVI per ogni immagine nella collezione
-  var eviCollection = sentinelImages.map(function (image) {
-    var nir = image.select('B8');
-    var red = image.select('B4');
-    var blue = image.select('B2');
-    var evi = image.expression(
-      '2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))', {
-        'NIR': nir,
-        'RED': red,
-        'BLUE': blue
-      }).rename('EVI');
-    return evi;
-  });
-
+  var eviCollection = calculateEVI(sentinelImages);
+  
   // Calcola la varianza dell'EVI
   var eviVariance = eviCollection.reduce(ee.Reducer.variance()).rename('EVI_variance');
 
@@ -158,11 +154,7 @@ exports.generateSentinelEVI_variance = function (roi, startDate, endDate, cloudC
   return eviVarianceClipped; // Ritorna l'immagine della varianza dell'EVI clipata
 };
 
-// Funzione per calcolare il LSWI medio utilizzando dati Sentinel-2
-exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateLSWI(sentinelImages){
   // Calcola il LSWI per ogni immagine nella collezione
   var lswiCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
@@ -174,6 +166,16 @@ exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCove
     return lswi;
   });
 
+  return lswiCollection;
+}
+
+// Funzione per calcolare il LSWI medio utilizzando dati Sentinel-2
+exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+  
+  var lswiCollection = calculateLSWI(sentinelImages);
+  
   // Calcola la media del LSWI
   var lswiMean = lswiCollection.mean().rename('LSWI_mean');
 
@@ -199,17 +201,8 @@ exports.generateSentinelLSWI_variance = function (roi, startDate, endDate, cloud
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il LSWI per ogni immagine nella collezione
-  var lswiCollection = sentinelImages.map(function (image) {
-    var nir = image.select('B8');
-    var swir1 = image.select('B11');
-    var lswi = image.expression('(NIR - SWIR1) / (NIR + SWIR1)', {
-      'NIR': nir,
-      'SWIR1': swir1
-    }).rename('LSWI');
-    return lswi;
-  });
-
+  var lswiCollection = calculateLSWI(sentinelImages);
+  
   // Calcola la varianza del LSWI
   var lswiVariance = lswiCollection.reduce(ee.Reducer.variance()).rename('LSWI_variance');
 
@@ -230,11 +223,7 @@ exports.generateSentinelLSWI_variance = function (roi, startDate, endDate, cloud
   return lswiVarianceClipped; // Ritorna l'immagine della varianza del LSWI clipata
 };
 
-// Funzione per calcolare la media del mNDWI utilizzando dati Sentinel-2
-exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateMNDWI(sentinelImages){
   // Calcola il mNDWI per ogni immagine nella collezione
   var mndwiCollection = sentinelImages.map(function (image) {
     var green = image.select('B3');
@@ -248,6 +237,16 @@ exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCov
     return mndwi;
   });
 
+  return mndwiCollection;
+}
+
+// Funzione per calcolare la media del mNDWI utilizzando dati Sentinel-2
+exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var mndwiCollection = calculateMNDWI(sentinelImages);
+  
   // Calcola la media del mNDWI
   var mndwiMean = mndwiCollection.mean().rename('MNDWI_mean');
 
@@ -273,18 +272,8 @@ exports.generateSentinelMNDWI_variance = function (roi, startDate, endDate, clou
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  var mndwiCollection = sentinelImages.map(function (image) {
-    var green = image.select('B3');
-    var swir1 = image.select('B11');
-    var swir2 = image.select('B12');
-    var mndwi = image.expression('(GREEN - SWIR1) / (GREEN + SWIR2)', {
-      'GREEN': green, 
-      'SWIR1': swir1,
-      'SWIR2': swir2
-    }).rename('MNDWI');
-    return mndwi;
-  });
-
+  var mndwiCollection = calculateMNDWI(sentinelImages);
+  
   // Calcola la varianza del mNDWI
   var mndwiVariance = mndwiCollection.reduce(ee.Reducer.variance()).rename('MNDWI_variance');
 
@@ -305,11 +294,7 @@ exports.generateSentinelMNDWI_variance = function (roi, startDate, endDate, clou
   return mndwiVarianceClipped; // Ritorna l'immagine della varianza del mNDWI clipata
 };
 
-// Funzione per calcolare la media del NDBI utilizzando dati Sentinel-2
-exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateNDBI(sentinelImages){
   // Calcola il NDBI per ogni immagine nella collezione
   var ndbiCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
@@ -320,7 +305,17 @@ exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCove
     }).rename('NDBI');
     return ndbi;
   });
+  
+  return ndbiCollection;
+}
 
+// Funzione per calcolare la media del NDBI utilizzando dati Sentinel-2
+exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var ndbiCollection = calculateNDBI(sentinelImages);
+  
   // Calcola la media del NDBI
   var ndbiMean = ndbiCollection.mean().rename('NDBI_mean');
 
@@ -346,17 +341,8 @@ exports.generateSentinelNDBI_variance = function (roi, startDate, endDate, cloud
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il NDBI per ogni immagine nella collezione
-  var ndbiCollection = sentinelImages.map(function (image) {
-    var nir = image.select('B8');
-    var swir1 = image.select('B11');
-    var ndbi = image.expression('(SWIR1 - NIR) / (SWIR1 + NIR)', {
-      'SWIR1': swir1, 
-      'NIR': nir
-    }).rename('NDBI');
-    return ndbi;
-  });
-
+  var ndbiCollection = calculateNDBI(sentinelImages);
+  
   // Calcola la varianza del NDBI
   var ndbiVariance = ndbiCollection.reduce(ee.Reducer.variance()).rename('NDBI_variance');
 
@@ -377,11 +363,7 @@ exports.generateSentinelNDBI_variance = function (roi, startDate, endDate, cloud
   return ndbiVarianceClipped; // Ritorna l'immagine della varianza del NDBI clipata
 };
 
-// Funzione per calcolare la media del NDSI utilizzando dati Sentinel-2
-exports.generateSentinelNDSI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateNDSI(sentinelImages){
   // Calcola il NDSI per ogni immagine nella collezione
   var ndsiCollection = sentinelImages.map(function (image) {
     var swir1 = image.select('B11');
@@ -393,6 +375,16 @@ exports.generateSentinelNDSI_mean = function (roi, startDate, endDate, cloudCove
     return ndsi;
   });
 
+  return ndsiCollection;
+}
+
+// Funzione per calcolare la media del NDSI utilizzando dati Sentinel-2
+exports.generateSentinelNDSI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var ndsiCollection = calculateNDSI(sentinelImages);
+  
   // Calcola la media del NDSI
   var ndsiMean = ndsiCollection.mean().rename('NDSI_mean');
 
@@ -418,17 +410,7 @@ exports.generateSentinelNDSI_variance = function (roi, startDate, endDate, cloud
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il NDSI per ogni immagine nella collezione
-  var ndsiCollection = sentinelImages.map(function (image) {
-    var swir1 = image.select('B11');
-    var swir2 = image.select('B12');
-    var ndsi = image.expression('(SWIR1 - SWIR2) / (SWIR1 + SWIR2)', {
-      'SWIR1': swir1, 
-      'SWIR2': swir2
-    }).rename('NDSI');
-    return ndsi;
-  });
-
+  var ndsiCollection = calculateNDSI(sentinelImages);
 
   // Calcola la varianza del NDSI
   var ndsiVariance = ndsiCollection.reduce(ee.Reducer.variance()).rename('NDSI_variance');
@@ -450,11 +432,7 @@ exports.generateSentinelNDSI_variance = function (roi, startDate, endDate, cloud
   return ndsiVarianceClipped; // Ritorna l'immagine della varianza del NDSI clipato
 };
 
-// Funzione per calcolare il TDVI medio utilizzando dati Sentinel-2
-exports.generateSentinelTDVI_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateTDVI(sentinelImages){
   // Calcola il TDVI per ogni immagine nella collezione
   var tdviCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8');
@@ -465,7 +443,17 @@ exports.generateSentinelTDVI_mean = function (roi, startDate, endDate, cloudCove
     }).rename('TDVI');
     return tdvi;
   });
+  
+  return tdviCollection;
+}
 
+// Funzione per calcolare il TDVI medio utilizzando dati Sentinel-2
+exports.generateSentinelTDVI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+  
+  var tdviCollection = calculateTDVI(sentinelImages);
+  
   // Calcola la media del TDVI
   var tdviMean = tdviCollection.mean().rename('TDVI_mean');
 
@@ -491,16 +479,7 @@ exports.generateSentinelTDVI_variance = function (roi, startDate, endDate, cloud
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il TDVI per ogni immagine nella collezione
-  var tdviCollection = sentinelImages.map(function (image) {
-    var nir = image.select('B8');
-    var red = image.select('B4');
-    var tdvi = image.expression('1.5 * ((NIR - RED) / (2 * NIR + RED + 0.5))', {
-      'NIR': nir, 
-      'RED': red
-    }).rename('TDVI');
-    return tdvi;
-  });
+  var tdviCollection = calculateTDVI(sentinelImages);
 
   // Calcola la varianza del TDVI
   var tdviVariance = tdviCollection.reduce(ee.Reducer.variance()).rename('TDVI_variance');
@@ -522,11 +501,7 @@ exports.generateSentinelTDVI_variance = function (roi, startDate, endDate, cloud
   return tdviVarianceClipped; // Ritorna l'immagine della varianza del TDVI clipato
 };
 
-// Funzione per calcolare il CMR medio utilizzando dati Sentinel-2
-exports.generateSentinelCMR_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateCMR(sentinelImages){
   // Calcola il CMR per ogni immagine nella collezione
   var cmrCollection = sentinelImages.map(function (image) {
     var swir1 = image.select('B11');
@@ -537,6 +512,16 @@ exports.generateSentinelCMR_mean = function (roi, startDate, endDate, cloudCover
     }).rename('CMR');
     return cmr;
   });
+  
+  return cmrCollection;
+}
+
+// Funzione per calcolare il CMR medio utilizzando dati Sentinel-2
+exports.generateSentinelCMR_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var cmrCollection = calculateCMR(sentinelImages);
 
   // Calcola la media del CMR
   var cmrMean = cmrCollection.mean().rename('CMR_mean');
@@ -563,17 +548,8 @@ exports.generateSentinelCMR_variance = function (roi, startDate, endDate, cloudC
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il CMR per ogni immagine nella collezione
-  var cmrCollection = sentinelImages.map(function (image) {
-    var swir1 = image.select('B11');
-    var swir2 = image.select('B12');
-    var cmr = image.expression('(SWIR1 / SWIR2)', {
-      'SWIR1': swir1,
-      'SWIR2': swir2
-    }).rename('CMR');
-    return cmr;
-  });
-
+  var cmrCollection = calculateCMR(sentinelImages);
+  
   // Calcola la varianza del CMR
   var cmrVariance = cmrCollection.reduce(ee.Reducer.variance()).rename('CMR_variance');
 
@@ -594,11 +570,7 @@ exports.generateSentinelCMR_variance = function (roi, startDate, endDate, cloudC
   return cmrVarianceClipped; // Ritorna l'immagine della varianza del CMR clipato
 };
 
-// Funzione per calcolare la media del CIgreen utilizzando dati Sentinel-2
-exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudCover) {
-  // Filtra le immagini Sentinel-2
-  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
-
+function calculateCIgreen(sentinelImages){
   // Calcola il CIgreen per ogni immagine nella collezione
   var ciGreenCollection = sentinelImages.map(function (image) {
     var nir = image.select('B8'); // Banda del vicino infrarosso
@@ -609,7 +581,17 @@ exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudC
     }).rename('CIgreen');
     return ciGreen;
   });
+  
+  return ciGreenCollection;
+}
 
+// Funzione per calcolare la media del CIgreen utilizzando dati Sentinel-2
+exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var ciGreenCollection = calculateCIgreen(sentinelImages);
+  
   // Calcola la media del CIgreen
   var ciGreenMean = ciGreenCollection.mean().rename('CIgreen_mean');
 
@@ -618,8 +600,8 @@ exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudC
 
   // Definisci i parametri di visualizzazione per la media del CIgreen
   var ciGreenMeanParams = {
-    min: -0.5,
-    max: 0.5,
+    min: -1,
+    max: 1,
     palette: ['blue', 'white', 'green'],
   };
 
@@ -635,17 +617,8 @@ exports.generateSentinelCIgreen_variance = function (roi, startDate, endDate, cl
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
 
-  // Calcola il CIgreen per ogni immagine nella collezione
-  var ciGreenCollection = sentinelImages.map(function (image) {
-    var nir = image.select('B8'); // Banda del vicino infrarosso
-    var green = image.select('B3'); // Banda del verde
-    var ciGreen = image.expression('(NIR / green) - 1', {
-      'NIR': nir, 
-      'green': green
-    }).rename('CIgreen');
-    return ciGreen;
-  });
-
+  var ciGreenCollection = calculateCIgreen(sentinelImages);
+  
   // Calcola la varianza del CIgreen
   var ciGreenVariance = ciGreenCollection.reduce(ee.Reducer.variance()).rename('CIgreen_variance');
 
@@ -664,5 +637,152 @@ exports.generateSentinelCIgreen_variance = function (roi, startDate, endDate, cl
   Map.addLayer(ciGreenVarianceClipped, ciGreenVarianceParams, "S2-CIgreen Variance Clipped");
 
   return ciGreenVarianceClipped; // Ritorna l'immagine della varianza del CIgreen clipata
+};
+
+function calculateMSAVI(sentinelImages){
+  // Calcola il MSAVI per ogni immagine nella collezione
+  var msaviCollection = sentinelImages.map(function (image) {
+    var nir = image.select('B8'); // Banda del vicino infrarosso
+    var red = image.select('B4'); // Banda del rosso
+
+    // Calcola l'indice MSAVI 
+    var msavi = image.expression(
+      '((2 * NIR + 1) - sqrt((2 * NIR + 1)^2 - 8 * (NIR - RED))) / 2', {
+      'NIR': nir,
+      'RED': red
+    }).rename('MSAVI');
+
+    return msavi;
+  });
+
+  return msaviCollection;
+}
+
+// Funzione per calcolare la media del MSAVI utilizzando dati Sentinel-2
+exports.generateSentinelMSAVI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var msaviCollection = calculateMSAVI(sentinelImages);
+  
+  // Calcola la media del MSAVI
+  var msaviMean = msaviCollection.mean().rename('MSAVI_mean');
+
+  // Clip della media del MSAVI sulla ROI
+  var msaviMeanClipped = msaviMean.clip(roi);
+
+  // Definisci i parametri di visualizzazione per la media del MSAVI
+  var msaviMeanParams = {
+    min: -1,
+    max: 1,
+    palette: ['blue', 'white', 'green'],
+  };
+
+  // Aggiungi la media del MSAVI clipata alla mappa
+  Map.centerObject(roi);
+  Map.addLayer(msaviMeanClipped, msaviMeanParams, "S2-MSAVI Mean Clipped");
+
+  return msaviMeanClipped; // Ritorna l'immagine della media del MSAVI clipata
+};
+
+// Funzione per calcolare la varianza del MSAVI utilizzando dati Sentinel-2
+exports.generateSentinelMSAVI_variance = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var msaviCollection = calculateMSAVI(sentinelImages);
+  
+  // Calcola la varianza del MSAVI
+  var msaviVariance = msaviCollection.reduce(ee.Reducer.variance()).rename('MSAVI_variance');
+
+  // Clip della varianza del MSAVI sulla ROI
+  var msaviVarianceClipped = msaviVariance.clip(roi);
+
+  // Definisci i parametri di visualizzazione per la varianza del MSAVI
+  var msaviVarianceParams = {
+    min: 0,
+    max: 0.02,
+    palette: ['blue', 'white', 'green'],
+  };
+
+  // Aggiungi la varianza del MSAVI clipata alla mappa
+  Map.centerObject(roi);
+  Map.addLayer(msaviVarianceClipped, msaviVarianceParams, "S2-MSAVI Variance Clipped");
+
+  return msaviVarianceClipped; // Ritorna l'immagine della varianza del MSAVI clipata
+};
+
+function calculateNBAI(sentinelImages){
+  // Calcola l'NBAI per ogni immagine nella collezione
+  var nbaiCollection = sentinelImages.map(function (image) {
+    var swir1 = image.select('B11'); // Banda del corto infrarosso 1
+    var swir2 = image.select('B12'); // Banda del corto infrarosso 2
+    var green = image.select('B3');  // Banda del verde
+
+    // Calcola l'indice NBAI
+    var nbai = image.expression(
+      '(SWIR2 - (SWIR1 / G)) / (SWIR2 + (SWIR1 / G))', {
+        'SWIR1': swir1,
+        'SWIR2': swir2,
+        'G': green
+      }).rename('NBAI');
+    return nbai;
+  });
+  
+  return nbaiCollection;
+}
+
+// Funzione per calcolare l'NBAI e la sua media utilizzando dati Sentinel-2
+exports.generateSentinelNBAI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var nbaiCollection = calculateNBAI(sentinelImages);
+  
+  // Calcola la media dell'NBAI
+  var nbaiMean = nbaiCollection.mean().rename('NBAI_mean');
+
+  // Clip dell'NBAI medio sulla ROI
+  var nbaiMeanClipped = nbaiMean.clip(roi);
+
+  // Definisci i parametri di visualizzazione per la media dell'NBAI
+  var nbaiMeanParams = {
+    min: -1,
+    max: 1,
+    palette: ['green', 'yellow', 'red'],
+  };
+
+  // Aggiungi la media dell'NBAI clipata alla mappa
+  Map.centerObject(roi);
+  Map.addLayer(nbaiMeanClipped, nbaiMeanParams, "S2-NBAI Mean Clipped");
+
+  return nbaiMeanClipped; // Ritorna l'immagine dell'NBAI medio clipato
+};
+
+// Funzione per calcolare la varianza dell'NBAI utilizzando dati Sentinel-2
+exports.generateSentinelNBAI_variance = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var nbaiCollection = calculateNBAI(sentinelImages);
+  
+  // Calcola la varianza dell'NBAI
+  var nbaiVariance = nbaiCollection.reduce(ee.Reducer.variance()).rename('NBAI_variance');
+
+  // Clip della varianza dell'NBAI sulla ROI
+  var nbaiVarianceClipped = nbaiVariance.clip(roi);
+
+  // Definisci i parametri di visualizzazione per la varianza dell'NBAI
+  var nbaiVarianceParams = {
+    min: 0,
+    max: 0.1,
+    palette: ['blue', 'white', 'green'],
+  };
+
+  // Aggiungi la varianza dell'NBAI clipata alla mappa
+  Map.centerObject(roi);
+  Map.addLayer(nbaiVarianceClipped, nbaiVarianceParams, "S2-NBAI Variance Clipped");
+
+  return nbaiVarianceClipped; // Ritorna l'immagine della varianza dell'NBAI clipata
 };
 
