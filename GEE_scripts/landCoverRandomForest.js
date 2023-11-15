@@ -42,8 +42,10 @@ var trainImage = input.sampleRegions({
 
 //suddividi l'insieme di addestramento in set di addestramento e test
 var trainingData = trainImage.randomColumn();
+//sottoinsieme del mio training data, che serve per addestrare il modello
 var trainSet = trainingData.filter(ee.Filter.lessThan('random', 0.8));
-var testSet = trainingData.filter(ee.Filter.greaterThanOrEquals('random', 0.8));
+//sottoinsieme del mio training data, che il modello non conosce e serve per valutare la capacità di apprendimento del modello
+var testSet = trainingData.filter(ee.Filter.greaterThanOrEquals('random', 0.8));  
 
 //crea e allena il classificatore Random Forest
 var classifier = ee.Classifier.smileRandomForest(10).train({
