@@ -5,6 +5,8 @@ My internship activity at University of Salerno.
 
 Moreover, ```landCoverRandomForest.js``` is a gee script, that uses Smile Random Forest algorithm to create a classified map of my region of interest (Province of Salerno).
 
+All images used for the work are taken from the Copernicus Sentinel-2 dataset.
+
 ## How to use it
 1. First thing first, the functions are designed to work on Google Earth Engine platform, so, in order to use them, you must have a Google Earth Engine account:
    - If you don't have a Google Earth Engine account yet, please follow this [tutorial](https://developers.google.com/earth-engine/guides/access#a-role-in-a-cloud-project).
