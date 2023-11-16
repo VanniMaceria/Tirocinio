@@ -833,7 +833,7 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
   return nbrMeanClipped; // Ritorna l'immagine dell'NBR medio clipato
 };
 
-// Funzione per calcolare l'NBR e la sua media utilizzando dati Sentinel-2
+// Funzione per calcolare l'NBR e la sua varianza utilizzando dati Sentinel-2
 exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudCover) {
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
@@ -852,7 +852,7 @@ exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudC
     palette: ['orange', 'white', 'purple'],
   };
 
-  // Aggiungi la media dell'NBR clipata alla mappa
+  // Aggiungi la varianza dell'NBR clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(nbrVarianceClipped, nbrVarianceParams, "S2-NBR Mean Clipped");
 
