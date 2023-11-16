@@ -1,7 +1,11 @@
 # Tirocinio
 My internship activity at University of Salerno.
 
-geolib.js is a Google Earth Engine Javascript library that contains functions for calculating and generating maps on geospatial indices such as NDVI, NDBI etc
+```geolib.js``` is a Google Earth Engine Javascript library that contains functions for calculating and generating maps on geospatial indices such as NDVI, NDBI, etc...
+
+Moreover, ```landCoverRandomForest.js``` is a gee script, that uses Smile Random Forest algorithm to create a classified map of my region of interest (Province of Salerno).
+
+All images used for the work are taken from the Copernicus Sentinel-2 dataset.
 
 ## How to use it
 1. First thing first, the functions are designed to work on Google Earth Engine platform, so, in order to use them, you must have a Google Earth Engine account:
