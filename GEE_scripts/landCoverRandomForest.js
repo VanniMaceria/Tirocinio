@@ -4,6 +4,8 @@ var salerno = ee.FeatureCollection('FAO/GAUL/2015/level2')
   .filter(ee.Filter.eq('ADM2_NAME', 'Salerno'));
 var roi = salerno.geometry();
 
+Map.addLayer(roi, {}, "Provincia di Salerno");
+
 //filtra l'immagine Sentinel-2 per la provincia di Salerno e un periodo di tempo specifico
 var dataset = ee.ImageCollection("COPERNICUS/S2")
   .filterBounds(roi)
