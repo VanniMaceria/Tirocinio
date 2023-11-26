@@ -57,7 +57,7 @@ exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCove
                   .where(ndviMean.gt(0.8).and(ndviMean.lte(0.9)), 9)
                   .where(ndviMean.gt(0.9).and(ndviMean.lte(1)), 10);
                   
-  ndviClass = ndviClass.clip(roi);
+    ndviClass = ndviClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
   var classes = ['-1 - 0.1', '0.1 - 0.2', '0.2 - 0.3', '0.3 - 0.4', '0.4 - 0.5', '0.5 - 0.6', '0.6 - 0.7', '0.7 - 0.8', '0.8 - 0.9', '0.9 - 1'];
@@ -184,7 +184,7 @@ exports.generateSentinelEVI_variance = function (roi, startDate, endDate, cloudC
   // Calcola la varianza dell'EVI
   var eviVariance = eviCollection.reduce(ee.Reducer.variance()).rename('EVI_variance');
 
-  //MI SERVA UNA CLASSIFICAZIONE PER LA VARIANZA
+  //MI SERVA UNA CLASSIFICAZIONE PER LA VARIANZA - QUESTA E' UNA PROVA
   var eviClass = ee.Image(0)
                   .where(eviVariance.gte(0).and(eviVariance.lte(0.0107)), 1)
                   .where(eviVariance.gt(0.0).and(eviVariance.lte(0.39)), 2)
@@ -795,18 +795,18 @@ exports.generateSentinelMSAVI_mean = function (roi, startDate, endDate, cloudCov
   msaviClass = msaviClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
-  var classes = [
-    '-1 - (-0.8)',
-    '(-0.8) - (-0.6)',
-    '(-0.6) - (-0.4)',
-    '(-0.4) - (-0.2)',
-    '(-0.2) - 0',
-    '0 - 0.2',
-    '0.2 - 0.4',
-    '0.4 - 0.6',
-    '0.6 - 0.8',
-    '0.8 - 1'
-  ];
+var classes = [
+  '-1 - (-0.8)',
+  '(-0.8) - (-0.6)',
+  '(-0.6) - (-0.4)',
+  '(-0.4) - (-0.2)',
+  '(-0.2) - 0',
+  '0 - 0.2',
+  '0.2 - 0.4',
+  '0.4 - 0.6',
+  '0.6 - 0.8',
+  '0.8 - 1'
+];
   var colors = ['red', 'orange', '#EA8052', '#EBB552', '#E5BF79', 'yellow', '#BFE579', '#A7DD45', 'green', '#5F8B0C'];
 
   var msaviMeanParams = {
@@ -833,19 +833,19 @@ exports.generateSentinelMSAVI_variance = function (roi, startDate, endDate, clou
   // Calcola la varianza del MSAVI
   var msaviVariance = msaviCollection.reduce(ee.Reducer.variance()).rename('MSAVI_variance');
   
-  //MI SERVE LA CLASSIFICAZIONE DEL MSAVI
+  
   var msaviClass = ee.Image(0)
-                  .where(msaviVariance.gte(0).and(msaviVariance.lte(0.0005)), 1)
-                  .where(msaviVariance.gt(0.0005).and(msaviVariance.lte(0.1733)), 2)
-                  .where(msaviVariance.gt(0.1733).and(msaviVariance.lte(0.346)), 3)
-                  .where(msaviVariance.gt(0.346).and(msaviVariance.lte(0.5188)), 4)
-                  .where(msaviVariance.gt(0.5188).and(msaviVariance.lte(0.6915)), 5)
-                  .where(msaviVariance.gt(0.691), 6);
+                  .where(msaviVariance.gte(0).and(msaviVariance.lte(0.0001)), 1)
+                  .where(msaviVariance.gt(0.0001).and(msaviVariance.lte(0.0103)), 2)
+                  .where(msaviVariance.gt(0.0103).and(msaviVariance.lte(0.0205)), 3)
+                  .where(msaviVariance.gt(0.0205).and(msaviVariance.lte(0.0306)), 4)
+                  .where(msaviVariance.gt(0.0306).and(msaviVariance.lte(0.0408)), 5)
+                  .where(msaviVariance.gt(0.0408), 6);
                   
   msaviClass = msaviClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
-  var classes = ['0 - 0.0005', '0.0005 - 0.1733', '0.1733 - 0.346', '0.346 - 0.5188', '0.5188 - 0.6915', '> 0.6915'];
+  var classes = ['0 - 0.0001', '0.0001 - 0.0103', '0.0103 - 0.0205', '0.0205 - 0.0306', '0.0306 - 0.0408', '> 0.0408'];
   var colors = ['white', '#B9DFA5', '#AED996', '#7FC45A', '#589636', '#2C4B1B'];
 
   var msaviVarianceParams = {
