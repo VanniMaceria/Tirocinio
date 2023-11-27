@@ -43,6 +43,7 @@ exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCove
   
   // Calcola la media dell'NDVI
   var ndviMean = ndviCollection.mean().rename('NDVI_mean');
+  var ndviClipped = ndviMean.clip(roi);
   
   //creo le classi per i valori dell'ndvi
   var ndviClass = ee.Image(0)
@@ -72,10 +73,14 @@ exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCove
 
   // Aggiungi l'NDVI medio clipato alla mappa
   Map.centerObject(roi);
+  Map.addLayer(ndviClipped, {min: -1, max: 1, palette: ['blue', 'white', 'green']}, "S2-NDVI Mean");
   Map.addLayer(ndviClass, ndviMeanParams, "S2-NDVI Mean Classified");
   addLegend(classes, colors);
 
-  return ndviClass; // Ritorna l'immagine dell'NDVI medio classificato
+  return {
+    ndviClassified: ndviClass, //ndvi classificato
+    ndviUnclassified: ndviClipped //ndvi non classificato
+  };
 };
 
 // Funzione per calcolare la varianza dell'NDVI utilizzando dati Sentinel-2
@@ -87,6 +92,7 @@ exports.generateSentinelNDVI_variance = function (roi, startDate, endDate, cloud
   
   // Calcola la varianza dell'NDVI
   var ndviVariance = ndviCollection.reduce(ee.Reducer.variance()).rename('NDVI_variance');
+  var ndviClipped = ndviVariance.clip(roi);
   
   var ndviClass = ee.Image(0)
                   .where(ndviVariance.gte(0).and(ndviVariance.lte(0.0001)), 1)
@@ -110,10 +116,14 @@ exports.generateSentinelNDVI_variance = function (roi, startDate, endDate, cloud
   
   // Aggiungi la varianza dell'NDVI clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(ndviClipped, {}, "S2-NDVI Variance");
   Map.addLayer(ndviClass, ndviVarianceParams, "S2-NDVI Variance Classified");
   addLegend(classes, colors);
 
-  return ndviClass; // Ritorna l'immagine della varianza dell'NDVI classificata
+  return {
+    ndviClassified: ndviClass, //ndvi classificato
+    ndviUnclassified: ndviClipped //ndvi non classificato
+  };
 };
 
 function calculateEVI(sentinelImages){
@@ -124,7 +134,7 @@ function calculateEVI(sentinelImages){
     var blue = image.select('B2');
     var redEdge2 = image.select('B6');
     var evi = image.expression(
-      '2.5 * (NIR - RED) / ((NIR + 6 * RED_EDGE2 - 7.5 * BLUE) + 1)', {
+      '2.5 * (NIR - RED) / ((NIR + 6 * RED_EDGE2 - 7.5 * BLUE + 1))', {
         'NIR': nir,
         'RED': red,
         'BLUE': blue,
