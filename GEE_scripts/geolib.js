@@ -1087,23 +1087,19 @@ exports.generateSentinelBUI_mean = function (roi, startDate, endDate, cloudCover
   var buiClipped = buiMean.clip(roi);
 
   var buiClass = ee.Image(0)
-                  .where(buiMean.gte(-1).and(buiMean.lte(0)), 1)
-                  .where(buiMean.gt(0.02).and(buiMean.lte(0.04)), 2)
-                  .where(buiMean.gt(0.04).and(buiMean.lte(0.06)), 3)
-                  .where(buiMean.gt(0.06).and(buiMean.lte(0.08)), 4)
-                  .where(buiMean.gt(0.08).and(buiMean.lte(0.1)), 5)
-                  .where(buiMean.gt(0.1).and(buiMean.lte(0.2)), 6)
-                  .where(buiMean.gt(0.2).and(buiMean.lte(1)), 7);
+                  .where(buiMean.lte(0), 1)
+                  .where(buiMean.gt(0).and(buiMean.lte(1)), 2)
+                  .where(buiMean.gt(1), 3);
                   
   buiClass = buiClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
-  var classes = ['-1 - 0', '0.02 - 0.04', '0.04 - 0.06', '0.06 - 0.08', '0.08 - 0.1', '0.1 - 0.2', '0.2 - 1'];
-  var colors = ['white', '#FFCCCC', '#FF9999', '#FF6666', '#FF3333', '#FF0000', '#CC0000'];
+  var classes = ['<= 0', '0 - 1', '> 1'];
+  var colors = ['white', '#FF3333', '#CC0000'];
 
   var buiMeanParams = {
     min: 1,
-    max: 7,
+    max: 3,
     palette: colors
   };
  
@@ -1118,7 +1114,6 @@ exports.generateSentinelBUI_mean = function (roi, startDate, endDate, cloudCover
   };
 };
 
-
 // Funzione per calcolare la varianza del BUI utilizzando dati Sentinel-2
 exports.generateSentinelBUI_variance = function (roi, startDate, endDate, cloudCover) {
   // Filtra le immagini Sentinel-2
@@ -1126,7 +1121,7 @@ exports.generateSentinelBUI_variance = function (roi, startDate, endDate, cloudC
 
   var buiCollection = calculateBUI(sentinelImages);
   
-  // Calcola la media del BUI
+  // Calcola la varianza del BUI
   var buiVariance = buiCollection.reduce(ee.Reducer.variance()).rename('BUI_variance');
   var buiClipped = buiVariance.clip(roi);
 
