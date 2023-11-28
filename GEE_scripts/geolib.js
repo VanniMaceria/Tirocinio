@@ -10,6 +10,7 @@
   - CIgreen
   - MSAVI
   - NBR
+  - BUI
 */
 
 //funzione di filtraggio dati Sentinel-2
@@ -155,6 +156,7 @@ exports.generateSentinelEVI_mean = function (roi, startDate, endDate, cloudCover
   
   // Calcola la media dell'EVI
   var eviMean = eviCollection.mean().rename('EVI_mean');
+  var eviClipped = eviMean.clip(roi);
 
   var eviClass = ee.Image(0)
                   .where(eviMean.gte(-1).and(eviMean.lte(0.0)), 1)
@@ -178,10 +180,14 @@ exports.generateSentinelEVI_mean = function (roi, startDate, endDate, cloudCover
 
   // Aggiungi l'EVI medio clipato alla mappa
   Map.centerObject(roi);
+  Map.addLayer(eviClipped, {min: -1, max: 1, palette: ['blue', 'white', 'green']}, "S2-EVI Mean");
   Map.addLayer(eviClass, eviMeanParams, "S2-EVI Mean Classified");
   addLegend(classes, colors);
 
-  return eviClass; // Ritorna l'immagine dell'EVI medio classificato
+  return {
+    eviClassified: eviClass, 
+    eviUnclassified: eviClipped 
+  };
 };
 
 // Funzione per calcolare la varianza dell'EVI utilizzando dati Sentinel-2
@@ -193,6 +199,7 @@ exports.generateSentinelEVI_variance = function (roi, startDate, endDate, cloudC
   
   // Calcola la varianza dell'EVI
   var eviVariance = eviCollection.reduce(ee.Reducer.variance()).rename('EVI_variance');
+  var eviClipped = eviVariance.clip(roi);
 
   //MI SERVA UNA CLASSIFICAZIONE PER LA VARIANZA - QUESTA E' UNA PROVA
   var eviClass = ee.Image(0)
@@ -217,9 +224,13 @@ exports.generateSentinelEVI_variance = function (roi, startDate, endDate, cloudC
 
   // Aggiungi la varianza dell'EVI clipata alla mappa
   Map.centerObject(roi);
-  Map.addLayer(eviClass, eviVarianceParams, "S2-EVI Variance Clipped");
+  Map.addLayer(eviClipped, {}, "S2-EVI Variance")
+  Map.addLayer(eviClass, eviVarianceParams, "S2-EVI Variance Classified");
 
-  return eviClass; // Ritorna l'immagine della varianza dell'EVI clipata
+  return {
+    eviClassified: eviClass,
+    eviUnclassified: eviClipped 
+  };
 };
 
 function calculateLSWI(sentinelImages){
@@ -246,6 +257,7 @@ exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCove
   
   // Calcola la media del LSWI
   var lswiMean = lswiCollection.mean().rename('LSWI_mean');
+  var lswiClipped = lswiMean.clip(roi);
 
   var lswiClass = ee.Image(0)
                   .where(lswiMean.gte(-1).and(lswiMean.lte(-0.50)), 1)
@@ -268,10 +280,14 @@ exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCove
 
   // Aggiungi il LSWI medio clipato alla mappa
   Map.centerObject(roi);
+  Map.addLayer(lswiClipped, {min: -1, max: 1, palette: ['red', 'white', 'blue']}, "S2-LSWI Mean")
   Map.addLayer(lswiClass, lswiMeanParams, "S2-LSWI Mean Classified");
   addLegend(classes, colors);
 
-  return lswiClass; // Ritorna l'immagine del LSWI medio classificato
+  return {
+    lswiClassified: lswiClass,
+    lswiUnclassified: lswiClipped
+  };
 };
 
 // Funzione per calcolare la varianza del LSWI utilizzando dati Sentinel-2
@@ -283,6 +299,7 @@ exports.generateSentinelLSWI_variance = function (roi, startDate, endDate, cloud
   
   // Calcola la varianza del LSWI
   var lswiVariance = lswiCollection.reduce(ee.Reducer.variance()).rename('LSWI_variance');
+  var lswiClipped = lswiVariance.clip(roi);
 
   var lswiClass = ee.Image(0)
                   .where(lswiVariance.gte(0).and(lswiVariance.lte(0.0003)), 1)
@@ -305,10 +322,15 @@ exports.generateSentinelLSWI_variance = function (roi, startDate, endDate, cloud
   };
 
   Map.centerObject(roi);
+  Map.addLayer(lswiClipped, {}, "S2-LSWI Variance");
   Map.addLayer(lswiClass, lswiVarianceParams, "S2-LSWI Variance Classified");
   addLegend(classes, colors);
 
-  return lswiClass; // Ritorna l'immagine della varianza del LSWI classificata
+  
+  return {
+    lswiClassified: lswiClass,
+    lswiUnclassified: lswiClipped
+  };
 };
 
 function calculateMNDWI(sentinelImages){
@@ -337,6 +359,7 @@ exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCov
   
   // Calcola la media del mNDWI
   var mndwiMean = mndwiCollection.mean().rename('MNDWI_mean');
+  var mndwiClipped = mndwiMean.clip(roi);
 
   var mndwiClass = ee.Image(0)
                   .where(mndwiMean.gte(-1).and(mndwiMean.lte(-0.15)), 1)
@@ -359,10 +382,14 @@ exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCov
 
   // Aggiungi la media del mNDWI clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(mndwiClipped, {min: -1, max: 1, palette: ['red', 'white', 'blue']}, "S2-mNDWI Mean")
   Map.addLayer(mndwiClass, mndwiMeanParams, "S2-mNDWI Mean Classified");
   addLegend(classes, colors);
-
-  return mndwiClass; // Ritorna l'immagine della media del mNDWI classificata
+  
+  return {
+    mndwiClassified: mndwiClass,
+    mndwiUnclassified: mndwiClipped
+  };
 };
 
 // Funzione per calcolare la varianza del mNDWI utilizzando dati Sentinel-2
@@ -374,8 +401,9 @@ exports.generateSentinelMNDWI_variance = function (roi, startDate, endDate, clou
   
   // Calcola la varianza del mNDWI
   var mndwiVariance = mndwiCollection.reduce(ee.Reducer.variance()).rename('MNDWI_variance');
+  var mndwiClipped = mndwiVariance.clip(roi);
 
- var mndwiClass = ee.Image(0)
+  var mndwiClass = ee.Image(0)
                   .where(mndwiVariance.gte(0).and(mndwiVariance.lte(0.0012)), 1)
                   .where(mndwiVariance.gt(0.0012).and(mndwiVariance.lte(0.0148)), 2)
                   .where(mndwiVariance.gt(0.0148).and(mndwiVariance.lte(0.0283)), 3)
@@ -396,10 +424,14 @@ exports.generateSentinelMNDWI_variance = function (roi, startDate, endDate, clou
   };
  
   Map.centerObject(roi);
+  Map.addLayer(mndwiClipped, {}, "S2-mNDWI Variance")
   Map.addLayer(mndwiClass, mndwiVarianceParams, "S2-mNDWI Variance Classified");
   addLegend(classes, colors);
   
-  return mndwiClass; // Ritorna l'immagine della varianza del mNDWI classificata
+   return {
+    mndwiClassified: mndwiClass,
+    mndwiUnclassified: mndwiClipped
+  };
 };
 
 function calculateNDBI(sentinelImages){
@@ -426,6 +458,7 @@ exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCove
   
   // Calcola la media del NDBI
   var ndbiMean = ndbiCollection.mean().rename('NDBI_mean');
+  var ndbiClipped = ndbiMean.clip(roi);
 
   var ndbiClass = ee.Image(0)
                   .where(ndbiMean.gte(-1).and(ndbiMean.lte(0)), 1)
@@ -448,12 +481,15 @@ exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCove
     palette: colors
   };
  
-  // Aggiungi la media del NDBI clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(ndbiClipped, {min: -1, max: 1, palette: ['green', 'yellow', 'red']}, "S2-NDBI Mean");
   Map.addLayer(ndbiClass, ndbiMeanParams, "S2-NDBI Mean Classified");
   addLegend(classes, colors);
   
-  return ndbiClass; // Ritorna l'immagine della media del NDBI classificata
+  return {
+    ndbiClassified: ndbiClass,
+    ndbiUnclassified: ndbiClipped
+  };
 };
 
 // Funzione per calcolare la varianza del NDBI utilizzando dati Sentinel-2
@@ -465,7 +501,8 @@ exports.generateSentinelNDBI_variance = function (roi, startDate, endDate, cloud
   
   // Calcola la varianza del NDBI
   var ndbiVariance = ndbiCollection.reduce(ee.Reducer.variance()).rename('NDBI_variance');
-
+  var ndbiClipped = ndbiVariance.clip(roi);
+  
   var ndbiClass = ee.Image(0)
                   .where(ndbiVariance.gte(0).and(ndbiVariance.lte(0.0003)), 1)
                   .where(ndbiVariance.gt(0.0003).and(ndbiVariance.lte(0.0091)), 2)
@@ -487,10 +524,14 @@ exports.generateSentinelNDBI_variance = function (roi, startDate, endDate, cloud
   };
   
   Map.centerObject(roi);
+  Map.addLayer(ndbiClipped, {}, "S2-NDBI Variance")
   Map.addLayer(ndbiClass, ndbiVarianceParams, "S2-NDBI Variance Classified");
   addLegend(classes, colors)
 
-  return ndbiClass; // Ritorna l'immagine della varianza del NDBI classificata
+  return {
+    ndbiClassified: ndbiClass,
+    ndbiUnclassified: ndbiClipped
+  };
 };
 
 function calculateTDVI(sentinelImages){
@@ -517,6 +558,7 @@ exports.generateSentinelTDVI_mean = function (roi, startDate, endDate, cloudCove
   
   // Calcola la media del TDVI
   var tdviMean = tdviCollection.mean().rename('TDVI_mean');
+  var tdviClipped = tdviMean.clip(roi);
 
   var tdviClass = ee.Image(0)
                   .where(tdviMean.gte(0).and(tdviMean.lte(0.25)), 1)
@@ -537,10 +579,14 @@ exports.generateSentinelTDVI_mean = function (roi, startDate, endDate, cloudCove
   
   // Aggiungi il TDVI medio clipato alla mappa
   Map.centerObject(roi);
+  Map.addLayer(tdviClipped, {min: 0, max: 1, palette: ['white', 'green']}, "S2-TDVI Mean")
   Map.addLayer(tdviClass, tdviMeanParams, "S2-TDVI Mean Classified");
   addLegend(classes, colors);
 
-  return tdviClass; // Ritorna l'immagine del TDVI medio classificato
+  return {
+    tdviClassified: tdviClass,
+    tdviUnclassified: tdviClipped
+  };
 };
 
 // Funzione per la varianza del TDVI da Sentinel-2
@@ -552,6 +598,7 @@ exports.generateSentinelTDVI_variance = function (roi, startDate, endDate, cloud
 
   // Calcola la varianza del TDVI
   var tdviVariance = tdviCollection.reduce(ee.Reducer.variance()).rename('TDVI_variance');
+  var tdviClipped = tdviVariance.clip(roi);
 
   var tdviClass = ee.Image(0)
                   .where(tdviVariance.gte(0).and(tdviVariance.lte(0.0001)), 1)
@@ -575,10 +622,14 @@ exports.generateSentinelTDVI_variance = function (roi, startDate, endDate, cloud
   
   // Aggiungi la varianza del TDVI clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(tdviClipped, {}, "S2-TDVI Variance");
   Map.addLayer(tdviClass, tdviVarianceParams, "S2-TDVI Variance Classified");
   addLegend(classes, colors);
 
-  return tdviClass; // Ritorna l'immagine della varianza del TDVI classificata
+  return {
+    tdviClassified: tdviClass,
+    tdviUnclassified: tdviClipped
+  };
 };
 
 function calculateCMR(sentinelImages){
@@ -605,6 +656,7 @@ exports.generateSentinelCMR_mean = function (roi, startDate, endDate, cloudCover
 
   // Calcola la media del CMR
   var cmrMean = cmrCollection.mean().rename('CMR_mean');
+  var cmrClipped= cmrMean.clip(roi);
 
   var cmrClass = ee.Image(0)
                   .where(cmrMean.gte(0).and(cmrMean.lte(0.4)), 1)
@@ -627,10 +679,14 @@ exports.generateSentinelCMR_mean = function (roi, startDate, endDate, cloudCover
   
   // Aggiungi il CMR medio clipato alla mappa
   Map.centerObject(roi);
+  Map.addLayer(cmrClipped, {min: 0, max: 2, palette: ['red', 'white', 'black']}, "S2-CMR Mean");
   Map.addLayer(cmrClass, cmrMeanParams, "S2-CMR Mean Classified");
   addLegend(classes, colors);
   
-  return cmrClass; // Ritorna l'immagine del CMR medio classificato
+  return {
+    cmrClassified: cmrClass,
+    cmrUnclassified: cmrClipped
+  };
 };
 
 // Funzione per la varianza del CMR da Sentinel-2
@@ -642,6 +698,7 @@ exports.generateSentinelCMR_variance = function (roi, startDate, endDate, cloudC
   
   // Calcola la varianza del CMR
   var cmrVariance = cmrCollection.reduce(ee.Reducer.variance()).rename('CMR_variance');
+  var cmrClipped = cmrVariance.clip(roi);
 
   var cmrClass = ee.Image(0)
                   .where(cmrVariance.gte(0).and(cmrVariance.lte(0.0009)), 1)
@@ -665,10 +722,14 @@ exports.generateSentinelCMR_variance = function (roi, startDate, endDate, cloudC
   
   // Aggiungi la varianza del CMR clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(cmrClipped, {}, "S2-CMR-Variance");
   Map.addLayer(cmrClass, cmrVarianceParams, "S2-CMR Variance Classified");
   addLegend(classes, colors);
 
-  return cmrClass; // Ritorna l'immagine della varianza del CMR classificata
+   return {
+    cmrClassified: cmrClass,
+    cmrUnclassified: cmrClipped
+  };
 };
 
 function calculateCIgreen(sentinelImages){
@@ -695,6 +756,7 @@ exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudC
   
   // Calcola la media del CIgreen
   var ciGreenMean = ciGreenCollection.mean().rename('CIgreen_mean');
+  var ciGreenClipped = ciGreenMean.clip(roi);
 
   var ciGreenClass = ee.Image(0)
                   .where(ciGreenMean.gte(0).and(ciGreenMean.lte(0.7)), 1)
@@ -716,10 +778,14 @@ exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudC
   
   // Aggiungi la media del CIgreen clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(ciGreenClipped, {min: 0, max: 2.5, palette: ['white', 'green', '#2C4B1B']}, "S2-CIgreen Mean");
   Map.addLayer(ciGreenClass, ciGreenMeanParams, "S2-CIgreen Mean Classified");
   addLegend(classes, colors);
 
-  return ciGreenClass; // Ritorna l'immagine della media del CIgreen classificata
+  return {
+    ciGreenClassified: ciGreenClass,
+    ciGreenUnclassified: ciGreenClipped
+  };
 };
 
 // Funzione per calcolare la varianza del CIgreen utilizzando dati Sentinel-2
@@ -731,6 +797,7 @@ exports.generateSentinelCIgreen_variance = function (roi, startDate, endDate, cl
   
   // Calcola la varianza del CIgreen
   var ciGreenVariance = ciGreenCollection.reduce(ee.Reducer.variance()).rename('CIgreen_variance');
+  var ciGreenClipped = ciGreenVariance.clip(roi);
 
   var ciGreenClass = ee.Image(0)
                   .where(ciGreenVariance.gte(0).and(ciGreenVariance.lte(0.0005)), 1)
@@ -754,10 +821,14 @@ exports.generateSentinelCIgreen_variance = function (roi, startDate, endDate, cl
   
   // Aggiungi la varianza del CIgreen clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(ciGreenClipped, {}, "S2-CIgreen Variance");
   Map.addLayer(ciGreenClass, ciGreenVarianceParams, "S2-CIgreen Variance Classified");
   addLegend(classes, colors);
   
-  return ciGreenClass; // Ritorna l'immagine della varianza del CIgreen classificata
+  return {
+    ciGreenClassified: ciGreenClass,
+    ciGreenUnclassified: ciGreenClipped
+  };
 };
 
 function calculateMSAVI(sentinelImages){
@@ -789,6 +860,7 @@ exports.generateSentinelMSAVI_mean = function (roi, startDate, endDate, cloudCov
   
   // Calcola la media del MSAVI
   var msaviMean = msaviCollection.mean().rename('MSAVI_mean');
+  var msaviClipped = msaviMean.clip(roi);
 
   var msaviClass = ee.Image(0)
   .where(msaviMean.gte(-1).and(msaviMean.lte(-0.8)), 1)
@@ -827,10 +899,14 @@ var classes = [
   
   // Aggiungi la media del MSAVI clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(msaviClipped, {min: -1, max: 1, palette: ['red', 'yellow', 'green']}, "S2-MSAVI Mean");
   Map.addLayer(msaviClass, msaviMeanParams, "S2-MSAVI Mean Classificata");
   addLegend(classes, colors);
   
-  return msaviClass; // Ritorna l'immagine della media del MSAVI classificata
+  return {
+    msaviClassified: msaviClass,
+    msaviUnclassified: msaviClipped
+  };
 };
 
 // Funzione per calcolare la varianza del MSAVI utilizzando dati Sentinel-2
@@ -842,7 +918,7 @@ exports.generateSentinelMSAVI_variance = function (roi, startDate, endDate, clou
   
   // Calcola la varianza del MSAVI
   var msaviVariance = msaviCollection.reduce(ee.Reducer.variance()).rename('MSAVI_variance');
-  
+  var msaviClipped = msaviVariance.clip(roi);
   
   var msaviClass = ee.Image(0)
                   .where(msaviVariance.gte(0).and(msaviVariance.lte(0.0001)), 1)
@@ -866,10 +942,14 @@ exports.generateSentinelMSAVI_variance = function (roi, startDate, endDate, clou
   
   // Aggiungi la varianza del MSAVI clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(msaviClipped, {}, "S2-MSAVI Variance");
   Map.addLayer(msaviClass, msaviVarianceParams, "S2-MSAVI Variance Classified");
   addLegend(classes, colors);
   
-  return msaviClass; // Ritorna l'immagine della varianza del MSAVI classificata
+  return {
+    msaviClassified: msaviClass,
+    msaviUnclassified: msaviClipped
+  };
 };
 
 //funzione che calcola il Normalized Burn Radio (NBR)
@@ -900,6 +980,7 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
   
   // Calcola la media dell'NBR
   var nbrMean = nbrCollection.mean().rename('NBR_mean');
+  var nbrClipped = nbrMean.clip(roi);
 
   var nbrClass = ee.Image(0)
                   .where(nbrMean.gte(-1).and(nbrMean.lte(-0.30)), 1)
@@ -923,10 +1004,14 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
   
   // Aggiungi la media dell'NBR clipata alla mappa
   Map.centerObject(roi);
+  Map.addLayer(nbrClipped, {min: -1, max: 1, palette: ['black', '7F055F', 'yellow']}, "S2-NBR Mean");
   Map.addLayer(nbrClass, nbrMeanParams, "S2-NBR Mean Classified");
   addLegend(classes, colors);
   
-  return nbrClass; // Ritorna l'immagine dell'NBR medio classificato
+  return {
+    nbrClassified: nbrClass,
+    nbrUnclassified: nbrClipped
+  };
 };
 
 // Funzione per calcolare l'NBR e la sua media utilizzando dati Sentinel-2
@@ -938,6 +1023,7 @@ exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudC
   
   // Calcola la varianza dell'NBR
   var nbrVariance = nbrCollection.reduce(ee.Reducer.variance()).rename('NBR_variance');
+  var nbrClipped = nbrVariance.clip(roi)
 
   var nbrClass = ee.Image(0)
                     .where(nbrVariance.gte(0).and(nbrVariance.lte(0.0003)), 1)
@@ -958,13 +1044,126 @@ exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudC
       max: 6,
       palette: colors
     };
-  // Aggiungi la media dell'NBR clipata alla mappa
+  
   Map.centerObject(roi);
+  Map.addLayer(nbrClipped, {}, "S2-NBR Variance")
   Map.addLayer(nbrClass, nbrVarianceParams, "S2-NBR Mean Classified");
   addLegend(classes, colors);
 
-  return nbrClass; 
+  return {
+    nbrClassified: nbrClass,
+    nbrUnclassified: nbrClipped
+  }; 
 };
+
+function calculateBUI(sentinelImages){
+  // Calcola il BUI per ogni immagine nella collezione
+  var buiCollection = sentinelImages.map(function (image) {
+    var swir1 = image.select('B11');
+    var nir = image.select('B8');
+    var red = image.select('B4');
+    
+    var bui = image.expression(
+      '((SWIR1 - NIR) / (SWIR1 + NIR)) / ((NIR - RED) / (NIR + RED))', {
+        'RED': red,
+        'NIR': nir,
+        'SWIR1': swir1
+      }).rename('BUI');
+    return bui;
+  });
+
+  return buiCollection;
+}
+
+// Funzione per calcolare la media del BUI utilizzando dati Sentinel-2
+exports.generateSentinelBUI_mean = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var buiCollection = calculateBUI(sentinelImages);
+  
+  // Calcola la media del BUI
+  var buiMean = buiCollection.mean().rename('BUI_mean');
+  var buiClipped = buiMean.clip(roi);
+
+  var buiClass = ee.Image(0)
+                  .where(buiMean.gte(-1).and(buiMean.lte(0)), 1)
+                  .where(buiMean.gt(0.02).and(buiMean.lte(0.04)), 2)
+                  .where(buiMean.gt(0.04).and(buiMean.lte(0.06)), 3)
+                  .where(buiMean.gt(0.06).and(buiMean.lte(0.08)), 4)
+                  .where(buiMean.gt(0.08).and(buiMean.lte(0.1)), 5)
+                  .where(buiMean.gt(0.1).and(buiMean.lte(0.2)), 6)
+                  .where(buiMean.gt(0.2).and(buiMean.lte(1)), 7);
+                  
+  buiClass = buiClass.clip(roi);
+                  
+  //lista delle classi e dei i rispettivi colori
+  var classes = ['-1 - 0', '0.02 - 0.04', '0.04 - 0.06', '0.06 - 0.08', '0.08 - 0.1', '0.1 - 0.2', '0.2 - 1'];
+  var colors = ['white', '#FFCCCC', '#FF9999', '#FF6666', '#FF3333', '#FF0000', '#CC0000'];
+
+  var buiMeanParams = {
+    min: 1,
+    max: 7,
+    palette: colors
+  };
+ 
+  Map.centerObject(roi);
+  Map.addLayer(buiClipped, {min: -1, max: 1, palette: ['green', 'yellow', 'red']}, "S2-BUI Mean")
+  Map.addLayer(buiClass, buiMeanParams, "S2-BUI Mean Classified");
+  addLegend(classes, colors);
+  
+ return {
+    buiClassified: buiClass,
+    buiUnclassified: buiClipped
+  };
+};
+
+
+// Funzione per calcolare la varianza del BUI utilizzando dati Sentinel-2
+exports.generateSentinelBUI_variance = function (roi, startDate, endDate, cloudCover) {
+  // Filtra le immagini Sentinel-2
+  var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
+
+  var buiCollection = calculateBUI(sentinelImages);
+  
+  // Calcola la media del BUI
+  var buiVariance = buiCollection.reduce(ee.Reducer.variance()).rename('BUI_variance');
+  var buiClipped = buiVariance.clip(roi);
+
+  //CLASSIFICAZIONE TEMPORANEA - DA CAMBIARE
+  var buiClass = ee.Image(0)
+                  .where(buiVariance.gte(-1).and(buiVariance.lte(0)), 1)
+                  .where(buiVariance.gt(0.02).and(buiVariance.lte(0.04)), 2)
+                  .where(buiVariance.gt(0.04).and(buiVariance.lte(0.06)), 3)
+                  .where(buiVariance.gt(0.06).and(buiVariance.lte(0.08)), 4)
+                  .where(buiVariance.gt(0.08).and(buiVariance.lte(0.1)), 5)
+                  .where(buiVariance.gt(0.1).and(buiVariance.lte(0.2)), 6)
+                  .where(buiVariance.gt(0.2).and(buiVariance.lte(1)), 7);
+                  
+  buiClass = buiClass.clip(roi);
+                  
+  //lista delle classi e dei i rispettivi colori
+  var classes = ['-1 - 0', '0.02 - 0.04', '0.04 - 0.06', '0.06 - 0.08', '0.08 - 0.1', '0.1 - 0.2', '0.2 - 1'];
+  var colors = ['white', '#FFCCCC', '#FF9999', '#FF6666', '#FF3333', '#FF0000', '#CC0000'];
+
+  var buiVarianceParams = {
+    min: 1,
+    max: 7,
+    palette: colors
+  };
+ 
+  Map.centerObject(roi);
+  Map.addLayer(buiClipped, {}, "S2-BUI Variance")
+  Map.addLayer(buiClass, buiVarianceParams, "S2-BUI Variance Classified");
+  addLegend(classes, colors);
+  
+ return {
+    buiClassified: buiClass,
+    buiUnclassified: buiClipped
+  };
+};
+
+
 
 //creo la legenda delle classi
 function addLegend(classes, colors){
