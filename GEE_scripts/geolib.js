@@ -72,6 +72,7 @@ exports.generateSentinelNDVI_mean = function (roi, startDate, endDate, cloudCove
     palette: colors 
   };
 
+  // Aggiungi l'NDVI medio clipato alla mappa
   Map.centerObject(roi);
   Map.addLayer(ndviClipped, {min: -1, max: 1, palette: ['blue', 'white', 'green']}, "S2-NDVI Mean");
   Map.addLayer(ndviClass, ndviMeanParams, "S2-NDVI Mean Classified");
@@ -114,6 +115,7 @@ exports.generateSentinelNDVI_variance = function (roi, startDate, endDate, cloud
     palette: colors
   };
   
+  // Aggiungi la varianza dell'NDVI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(ndviClipped, {}, "S2-NDVI Variance");
   Map.addLayer(ndviClass, ndviVarianceParams, "S2-NDVI Variance Classified");
@@ -176,6 +178,7 @@ exports.generateSentinelEVI_mean = function (roi, startDate, endDate, cloudCover
     palette: colors
   };
 
+  // Aggiungi l'EVI medio clipato alla mappa
   Map.centerObject(roi);
   Map.addLayer(eviClipped, {min: -1, max: 1, palette: ['blue', 'white', 'green']}, "S2-EVI Mean");
   Map.addLayer(eviClass, eviMeanParams, "S2-EVI Mean Classified");
@@ -218,6 +221,7 @@ exports.generateSentinelEVI_variance = function (roi, startDate, endDate, cloudC
     palette: colors
   };
 
+  // Aggiungi la varianza dell'EVI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(eviClipped, {}, "S2-EVI Variance")
   Map.addLayer(eviClass, eviVarianceParams, "S2-EVI Variance Classified");
@@ -274,6 +278,7 @@ exports.generateSentinelLSWI_mean = function (roi, startDate, endDate, cloudCove
     palette: colors
   };
 
+  // Aggiungi il LSWI medio clipato alla mappa
   Map.centerObject(roi);
   Map.addLayer(lswiClipped, {min: -1, max: 1, palette: ['red', 'white', 'blue']}, "S2-LSWI Mean")
   Map.addLayer(lswiClass, lswiMeanParams, "S2-LSWI Mean Classified");
@@ -375,6 +380,7 @@ exports.generateSentinelMNDWI_mean = function (roi, startDate, endDate, cloudCov
     palette: colors
   };
 
+  // Aggiungi la media del mNDWI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(mndwiClipped, {min: -1, max: 1, palette: ['red', 'white', 'blue']}, "S2-mNDWI Mean")
   Map.addLayer(mndwiClass, mndwiMeanParams, "S2-mNDWI Mean Classified");
@@ -571,6 +577,7 @@ exports.generateSentinelTDVI_mean = function (roi, startDate, endDate, cloudCove
     palette: colors
   };
   
+  // Aggiungi il TDVI medio clipato alla mappa
   Map.centerObject(roi);
   Map.addLayer(tdviClipped, {min: 0, max: 1, palette: ['white', 'green']}, "S2-TDVI Mean")
   Map.addLayer(tdviClass, tdviMeanParams, "S2-TDVI Mean Classified");
@@ -613,6 +620,7 @@ exports.generateSentinelTDVI_variance = function (roi, startDate, endDate, cloud
     palette: colors
   };
   
+  // Aggiungi la varianza del TDVI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(tdviClipped, {}, "S2-TDVI Variance");
   Map.addLayer(tdviClass, tdviVarianceParams, "S2-TDVI Variance Classified");
@@ -669,6 +677,7 @@ exports.generateSentinelCMR_mean = function (roi, startDate, endDate, cloudCover
     palette: colors
   };
   
+  // Aggiungi il CMR medio clipato alla mappa
   Map.centerObject(roi);
   Map.addLayer(cmrClipped, {min: 0, max: 2, palette: ['red', 'white', 'black']}, "S2-CMR Mean");
   Map.addLayer(cmrClass, cmrMeanParams, "S2-CMR Mean Classified");
@@ -711,6 +720,7 @@ exports.generateSentinelCMR_variance = function (roi, startDate, endDate, cloudC
     palette: colors
   };
   
+  // Aggiungi la varianza del CMR clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(cmrClipped, {}, "S2-CMR-Variance");
   Map.addLayer(cmrClass, cmrVarianceParams, "S2-CMR Variance Classified");
@@ -766,6 +776,7 @@ exports.generateSentinelCIgreen_mean = function (roi, startDate, endDate, cloudC
     palette: colors
   };
   
+  // Aggiungi la media del CIgreen clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(ciGreenClipped, {min: 0, max: 2.5, palette: ['white', 'green', '#2C4B1B']}, "S2-CIgreen Mean");
   Map.addLayer(ciGreenClass, ciGreenMeanParams, "S2-CIgreen Mean Classified");
@@ -808,6 +819,7 @@ exports.generateSentinelCIgreen_variance = function (roi, startDate, endDate, cl
     palette: colors
   };
   
+  // Aggiungi la varianza del CIgreen clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(ciGreenClipped, {}, "S2-CIgreen Variance");
   Map.addLayer(ciGreenClass, ciGreenVarianceParams, "S2-CIgreen Variance Classified");
@@ -885,6 +897,7 @@ var classes = [
     palette: colors
   };
   
+  // Aggiungi la media del MSAVI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(msaviClipped, {min: -1, max: 1, palette: ['red', 'yellow', 'green']}, "S2-MSAVI Mean");
   Map.addLayer(msaviClass, msaviMeanParams, "S2-MSAVI Mean Classificata");
@@ -927,6 +940,7 @@ exports.generateSentinelMSAVI_variance = function (roi, startDate, endDate, clou
     palette: colors
   };
   
+  // Aggiungi la varianza del MSAVI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(msaviClipped, {}, "S2-MSAVI Variance");
   Map.addLayer(msaviClass, msaviVarianceParams, "S2-MSAVI Variance Classified");
@@ -971,16 +985,15 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
   var nbrClass = ee.Image(0)
                   .where(nbrMean.gte(-1).and(nbrMean.lte(-0.30)), 1)
                   .where(nbrMean.gt(-0.30).and(nbrMean.lte(-0.15)), 2)
-                  .where(nbrMean.gt(-0.15).and(nbrMean.lte(0)), 3)
-                  .where(nbrMean.gt(0).and(nbrMean.lte(0.15)), 4)
-                  .where(nbrMean.gt(0.15).and(nbrMean.lte(0.30)), 5)
-                  .where(nbrMean.gt(0.30).and(nbrMean.lte(1)), 6);
+                  .where(nbrMean.gt(-0.15).and(nbrMean.lte(0.15)), 3)
+                  .where(nbrMean.gt(0.15).and(nbrMean.lte(0.30)), 4)
+                  .where(nbrMean.gt(0.30).and(nbrMean.lte(1)), 5);
                   
   nbrClass = nbrClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
-  var classes = ['-1 - (-0.30)', '(-0.30) - (-0.15)', '(-0.15) - 0', '0 - 0.15', '0.15 - 0.30', '0.30 - 1'];
-  var colors = ['black', '#474973', '#7F055F', '#F1743F', '#B88A00', 'yellow'];
+  var classes = ['(-1) - (-0.30)', '(-0.30) - (-0.15)', '(-0.15) - 0.15', '0.15 - 0.30', '0.30 - 1'];
+  var colors = ['black', '#474973', '#7F055F', '#F1743F', '#B88A00'];
 
   var nbrMeanParams = {
     min: 1,
@@ -988,6 +1001,7 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
     palette: colors
   };
   
+  // Aggiungi la media dell'NBR clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(nbrClipped, {min: -1, max: 1, palette: ['black', '7F055F', 'yellow']}, "S2-NBR Mean");
   Map.addLayer(nbrClass, nbrMeanParams, "S2-NBR Mean Classified");
