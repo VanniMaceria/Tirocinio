@@ -461,7 +461,7 @@ exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCove
   var ndbiClipped = ndbiMean.clip(roi);
 
   var ndbiClass = ee.Image(0)
-                  .where(ndbiMean.gte(-1).and(ndbiMean.lte(0)), 1)
+                  .where(ndbiMean.gte(-1).and(ndbiMean.lte(0.02)), 1)
                   .where(ndbiMean.gt(0.02).and(ndbiMean.lte(0.04)), 2)
                   .where(ndbiMean.gt(0.04).and(ndbiMean.lte(0.06)), 3)
                   .where(ndbiMean.gt(0.06).and(ndbiMean.lte(0.08)), 4)
@@ -472,7 +472,7 @@ exports.generateSentinelNDBI_mean = function (roi, startDate, endDate, cloudCove
   ndbiClass = ndbiClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
-  var classes = ['-1 - 0', '0.02 - 0.04', '0.04 - 0.06', '0.06 - 0.08', '0.08 - 0.1', '0.1 - 0.2', '0.2 - 1'];
+  var classes = ['-1 - 0.02', '0.02 - 0.04', '0.04 - 0.06', '0.06 - 0.08', '0.08 - 0.1', '0.1 - 0.2', '0.2 - 1'];
   var colors = ['white', '#FFCCCC', '#FF9999', '#FF6666', '#FF3333', '#FF0000', '#CC0000'];
 
   var ndbiMeanParams = {
