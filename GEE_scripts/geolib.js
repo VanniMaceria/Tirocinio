@@ -862,7 +862,7 @@ exports.generateSentinelMSAVI_mean = function (roi, startDate, endDate, cloudCov
   var msaviMean = msaviCollection.mean().rename('MSAVI_mean');
   var msaviClipped = msaviMean.clip(roi);
 
-  var msaviClass = ee.Image(0)
+ var msaviClass = ee.Image(0)
   .where(msaviMean.gte(-1).and(msaviMean.lte(-0.8)), 1)
   .where(msaviMean.gt(-0.8).and(msaviMean.lte(-0.6)), 2)
   .where(msaviMean.gt(-0.6).and(msaviMean.lte(-0.4)), 3)
@@ -877,19 +877,19 @@ exports.generateSentinelMSAVI_mean = function (roi, startDate, endDate, cloudCov
   msaviClass = msaviClass.clip(roi);
                   
   //lista delle classi e dei i rispettivi colori
-var classes = [
-  '-1 - (-0.8)',
-  '(-0.8) - (-0.6)',
-  '(-0.6) - (-0.4)',
-  '(-0.4) - (-0.2)',
-  '(-0.2) - 0',
-  '0 - 0.2',
-  '0.2 - 0.4',
-  '0.4 - 0.6',
-  '0.6 - 0.8',
-  '0.8 - 1'
-];
-  var colors = ['red', 'orange', '#EA8052', '#EBB552', '#E5BF79', 'yellow', '#BFE579', '#A7DD45', 'green', '#5F8B0C'];
+  var classes = [
+    '-1 - (-0.8)',
+    '(-0.8) - (-0.6)',
+    '(-0.6) - (-0.4)',
+    '(-0.4) - (-0.2)',
+    '(-0.2) - 0',
+    '0 - 0.2',
+    '0.2 - 0.4',
+    '0.4 - 0.6',
+    '0.6 - 0.8',
+    '0.8 - 1'
+  ];
+  var colors = ['white', '#CEE8C0', '#B9DFA5', '#AED996', '#96CE78', '#7FC45A', '#69B441', '#589636', '#2C4B1B', '#233C16'];
 
   var msaviMeanParams = {
     min: 1,
@@ -900,7 +900,7 @@ var classes = [
   // Aggiungi la media del MSAVI clipata alla mappa
   Map.centerObject(roi);
   Map.addLayer(msaviClipped, {min: -1, max: 1, palette: ['red', 'yellow', 'green']}, "S2-MSAVI Mean");
-  Map.addLayer(msaviClass, msaviMeanParams, "S2-MSAVI Mean Classificata");
+  Map.addLayer(msaviClass, msaviMeanParams, "S2-MSAVI Mean Classified");
   addLegend(classes, colors);
   
   return {
@@ -993,7 +993,7 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
                   
   //lista delle classi e dei i rispettivi colori
   var classes = ['(-1) - (-0.30)', '(-0.30) - (-0.15)', '(-0.15) - 0.15', '0.15 - 0.30', '0.30 - 1'];
-  var colors = ['black', '#474973', '#7F055F', '#F1743F', '#B88A00'];
+  var colors = ['black', 'red', 'orange', '#8cc751', '#008200'];
 
   var nbrMeanParams = {
     min: 1,
@@ -1036,7 +1036,7 @@ exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudC
                     
     //lista delle classi e dei i rispettivi colori
     var classes = ['0 - 0.0003', '0.0003 - 0.0091', '0.0091 - 0.0180', '0.0180 - 0.0269', '0.0269 - 0.0357', '> 0.0357'];
-    var colors = ['black', '#474973', '#7F055F', '#F1743F', '#B88A00', 'yellow'];
+    var colors = ['black', 'red', 'orange', '#D0F0C0', '#8cc751', '#008200'];
   
     var nbrVarianceParams = {
       min: 1,
