@@ -23,7 +23,7 @@ All images used for the work are taken from the Copernicus Sentinel-2 dataset.
      //define your region of interest...
 
      //how to call a function
-     geolib.generateSentinelNDVI_mean(roi, '2022-01-01', '2022-04-01', 10);
+     geolib.generateSentinelNDVI_mean(roi, '2022-01-01', '2022-04-01', 10, true);
      ```
 
    That's it!
