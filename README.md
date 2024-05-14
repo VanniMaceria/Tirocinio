@@ -1,7 +1,7 @@
 # Tirocinio
 My internship activity at University of Salerno.
 
-```geolib.js``` is a **Google Earth Engine Javascript library** that contains functions for calculating and generating maps on geospatial indexes such as NDVI, NDB, etc...
+```geolib.js``` is a **Google Earth Engine Javascript library** that contains functions for calculating and generating maps on geophysical indexes such as NDVI, NDB, etc...
 
 Here a list of all indexes, for every of them are provided functions for mean and variance:
  - NDVI
