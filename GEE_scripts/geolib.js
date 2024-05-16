@@ -1123,7 +1123,7 @@ function calculateBUI(sentinelImages){
     var red = image.select('B4');
     
     var bui = image.expression(
-      '((SWIR1 - NIR) / (SWIR1 + NIR)) / ((NIR - RED) / (NIR + RED))', {
+      '((SWIR1 - NIR) / (SWIR1 + NIR)) - ((NIR - RED) / (NIR + RED))', {
         'RED': red,
         'NIR': nir,
         'SWIR1': swir1
