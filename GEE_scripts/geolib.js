@@ -1051,7 +1051,7 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
 
   var nbrMeanParams = {
     min: 1,
-    max: 6,
+    max: 5,
     palette: colors
   };
   
