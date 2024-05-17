@@ -1070,7 +1070,7 @@ exports.generateSentinelNBR_mean = function (roi, startDate, endDate, cloudCover
   };
 };
 
-// Funzione per calcolare l'NBR e la sua media utilizzando dati Sentinel-2
+// Funzione per calcolare l'NBR e la sua varianza utilizzando dati Sentinel-2
 exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudCover, legendVisibility) {
   // Filtra le immagini Sentinel-2
   var sentinelImages = filterFromSentinel2(roi, startDate, endDate, cloudCover);
