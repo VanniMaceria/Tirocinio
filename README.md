@@ -43,12 +43,18 @@ All images used for the work are taken from the **Copernicus Sentinel-2** datase
 
    That's it!
 
-   ## Let's have a look at parameters
+## Let's have a look at parameters
    
    - ```roi``` defines your area of interest, it can be a shapefile, a **Polygon** object or any other **FeatureCollection** of geometries;
    - ```startDate``` and ```endDate``` represent the **temporal bounds** within images will be selected;
    - ```cloudCover``` indicates the **maximum cloudy percentage** of the images that will be selected;
    - ```legendVisibility``` is a boolean value that specifies whether the **legend** will be **displayed** or not.
+
+     
+  ## Result 
+  Here an example of the result of ```generateSentinelNBR_mean```
+
    
-   
+   ![nbr_classificato](https://github.com/VanniMaceria/Tirocinio/assets/114587415/6e6351c1-fb5d-4c64-b79a-60c2861b825f)
+
    To get more details about it, please check Wiki section...
