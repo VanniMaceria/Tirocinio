@@ -52,7 +52,7 @@ All images used for the work are taken from the **Copernicus Sentinel-2** datase
 
      
   ## Result 
-  Here an example of the result of ```generateSentinelNBR_mean```
+  Here an example of the result of ```generateSentinelNBR_mean()```
 
    
    ![nbr_classificato](https://github.com/VanniMaceria/Tirocinio/assets/114587415/6e6351c1-fb5d-4c64-b79a-60c2861b825f)
