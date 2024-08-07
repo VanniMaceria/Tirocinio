@@ -1093,7 +1093,7 @@ exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudC
                     
     //lista delle classi e dei i rispettivi colori
     var classes = ['0 - 0.0003', '0.0003 - 0.0091', '0.0091 - 0.0180', '0.0180 - 0.0269', '0.0269 - 0.0357', '> 0.0357'];
-    var colors = ['black', 'red', 'orange', '#D0F0C0', '#8cc751', '#008200'];
+    var colors = ['#008200', '#8cc751', '#D0F0C0', 'orange', 'red', 'black'];
   
     var nbrVarianceParams = {
       min: 1,
@@ -1103,7 +1103,7 @@ exports.generateSentinelNBR_variance = function (roi, startDate, endDate, cloudC
   
   Map.centerObject(roi);
   Map.addLayer(nbrClipped, {}, "S2-NBR Variance")
-  Map.addLayer(nbrClass, nbrVarianceParams, "S2-NBR Mean Classified");
+  Map.addLayer(nbrClass, nbrVarianceParams, "S2-NBR Variance Classified");
   
   if(legendVisibility == true){
     addLegend(classes, colors);
